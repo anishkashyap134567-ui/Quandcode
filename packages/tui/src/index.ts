@@ -6,7 +6,7 @@
 // The interactive terminal interface for QuandCode.
 // Wires together: CyberRenderer + InputHandler + Agent
 
-import { Agent } from "@quandcode/core";
+import { Agent, getGlobalConfigPath } from "@quandcode/core";
 import type { AgentResult } from "@quandcode/core";
 import { CyberRenderer } from "./components/renderer.js";
 import { InputHandler } from "./components/input.js";
@@ -204,8 +204,21 @@ export class QuandCodeTUI {
     }
   }
 
+  private getConfigPath(): string {
+    const localPath = path.join(process.cwd(), "quandcode.json");
+    if (fs.existsSync(localPath)) {
+      return localPath;
+    }
+    const globalPath = getGlobalConfigPath();
+    const dir = path.dirname(globalPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    return globalPath;
+  }
+
   private saveConfig(config: any): void {
-    const configPath = path.join(process.cwd(), "quandcode.json");
+    const configPath = this.getConfigPath();
     try {
       fs.writeFileSync(configPath, JSON.stringify(config, null, 2), "utf-8");
     } catch (err) {
@@ -214,7 +227,7 @@ export class QuandCodeTUI {
   }
 
   private loadConfig(): any {
-    const configPath = path.join(process.cwd(), "quandcode.json");
+    const configPath = this.getConfigPath();
     if (fs.existsSync(configPath)) {
       try {
         const raw = fs.readFileSync(configPath, "utf-8");

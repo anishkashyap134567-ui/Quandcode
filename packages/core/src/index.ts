@@ -15,3 +15,4 @@ export * from "./agent/index.js";
 // Phase 10: ✅ Rust Sandbox
 export * from "./sandbox/index.js";
 export * from "./lsp/index.js";
+export * from "./config/index.js";

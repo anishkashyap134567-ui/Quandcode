@@ -52,36 +52,82 @@ export const QuandCodeConfigSchema = z.object({
 
 export type QuandCodeConfig = z.infer<typeof QuandCodeConfigSchema>;
 
-// Config file discovery: looks for quandcode.json in CWD, then parent dirs
+// Config file discovery: looks for quandcode.json in CWD, then parent dirs, and merges with global config
 export function discoverConfig(cwd: string = process.cwd()): QuandCodeConfig {
+  // 1. Load global config if it exists
+  let globalConfig: any = {};
+  const globalPath = getGlobalConfigPath();
+  if (fs.existsSync(globalPath)) {
+    try {
+      const raw = fs.readFileSync(globalPath, 'utf-8');
+      const cleaned = raw.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+      globalConfig = JSON.parse(cleaned);
+    } catch (err) {
+      // Ignore global config parse error
+    }
+  }
+
+  // 2. Discover local config (walking up from cwd)
   const configNames = ['quandcode.json', 'quandcode.jsonc', '.quandcode/quandcode.json'];
   let dir = cwd;
-  let parsedConfig: QuandCodeConfig | null = null;
+  let localConfig: any = {};
 
   while (true) {
+    let found = false;
     for (const name of configNames) {
       const configPath = path.join(dir, name);
       if (fs.existsSync(configPath)) {
         try {
           const raw = fs.readFileSync(configPath, 'utf-8');
-          // Strip comments for JSONC support
           const cleaned = raw.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
-          const parsed = JSON.parse(cleaned);
-          parsedConfig = QuandCodeConfigSchema.parse(parsed);
+          localConfig = JSON.parse(cleaned);
+          found = true;
           break;
         } catch (err) {
           console.warn(`Warning: Failed to parse config at ${configPath}`);
         }
       }
     }
-    if (parsedConfig) break;
+    if (found) break;
 
     const parent = path.dirname(dir);
     if (parent === dir) break; // Reached root
     dir = parent;
   }
 
-  const config = parsedConfig || QuandCodeConfigSchema.parse({});
+  // 3. Deep merge global and local configs (local overrides global)
+  const merged = {
+    ...globalConfig,
+    ...localConfig,
+    provider: {
+      ...(globalConfig.provider || {}),
+      ...(localConfig.provider || {}),
+    },
+    permission: {
+      ...(globalConfig.permission || {}),
+      ...(localConfig.permission || {}),
+    },
+    agent: {
+      ...(globalConfig.agent || {}),
+      ...(localConfig.agent || {}),
+    },
+  };
+
+  // Ensure individual provider settings are merged
+  if (globalConfig.provider && localConfig.provider) {
+    const allProviders = new Set([
+      ...Object.keys(globalConfig.provider),
+      ...Object.keys(localConfig.provider),
+    ]);
+    for (const key of allProviders) {
+      merged.provider[key] = {
+        ...(globalConfig.provider[key] || {}),
+        ...(localConfig.provider[key] || {}),
+      };
+    }
+  }
+
+  const config = QuandCodeConfigSchema.parse(merged);
 
   // Automatically load API keys from config into process.env if not already set
   if (config.provider) {
