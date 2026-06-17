@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.quandcode/
+target/
+*.db
+*.db-journal
+.env
+.env.local
