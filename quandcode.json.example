@@ -1,0 +1,14 @@
+{
+  "provider": {
+    "google": {
+      "apiKey": "YOUR_GEMINI_API_KEY_HERE"
+    },
+    "anthropic": {
+      "apiKey": "YOUR_ANTHROPIC_API_KEY_HERE"
+    },
+    "openai": {
+      "apiKey": "YOUR_OPENAI_API_KEY_HERE"
+    }
+  },
+  "model": "gemini-2.5-flash"
+}

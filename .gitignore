@@ -6,3 +6,5 @@ target/
 *.db-journal
 .env
 .env.local
+quandcode.json
+QuandCode_Project_Summary.pdf
