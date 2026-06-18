@@ -110,10 +110,16 @@ async function main(): Promise<void> {
         
         let defaultModel = config.model;
         if (!defaultModel) {
-          if (process.env.ANTHROPIC_API_KEY) {
+          if (config.provider?.google?.apiKey) {
+            defaultModel = 'gemini-2.5-flash';
+          } else if (config.provider?.anthropic?.apiKey) {
             defaultModel = 'claude-sonnet-4-20250514';
+          } else if (config.provider?.openai?.apiKey) {
+            defaultModel = 'gpt-4o';
           } else if (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) {
             defaultModel = 'gemini-2.5-flash';
+          } else if (process.env.ANTHROPIC_API_KEY) {
+            defaultModel = 'claude-sonnet-4-20250514';
           } else if (process.env.OPENAI_API_KEY) {
             defaultModel = 'gpt-4o';
           } else {
@@ -305,10 +311,16 @@ async function main(): Promise<void> {
 
         let defaultModel = config.model;
         if (!defaultModel) {
-          if (process.env.ANTHROPIC_API_KEY) {
+          if (config.provider?.google?.apiKey) {
+            defaultModel = 'gemini-2.5-flash';
+          } else if (config.provider?.anthropic?.apiKey) {
             defaultModel = 'claude-sonnet-4-20250514';
+          } else if (config.provider?.openai?.apiKey) {
+            defaultModel = 'gpt-4o';
           } else if (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) {
             defaultModel = 'gemini-2.5-flash';
+          } else if (process.env.ANTHROPIC_API_KEY) {
+            defaultModel = 'claude-sonnet-4-20250514';
           } else if (process.env.OPENAI_API_KEY) {
             defaultModel = 'gpt-4o';
           } else {
