@@ -56,6 +56,43 @@ export class QuandCodeTUI {
   async start(): Promise<void> {
     this.running = true;
 
+    // Migrate local keys to global if local exists (to ensure keys are available across all folders)
+    try {
+      const localPath = path.join(process.cwd(), "quandcode.json");
+      if (fs.existsSync(localPath)) {
+        const localRaw = fs.readFileSync(localPath, "utf-8");
+        const localJSON = JSON.parse(localRaw);
+        if (localJSON.provider) {
+          const globalPath = getGlobalConfigPath();
+          let globalJSON: any = {};
+          if (fs.existsSync(globalPath)) {
+            try {
+              const globalRaw = fs.readFileSync(globalPath, "utf-8");
+              globalJSON = JSON.parse(globalRaw);
+            } catch {}
+          }
+
+          let migrated = false;
+          if (!globalJSON.provider) globalJSON.provider = {};
+          for (const key of Object.keys(localJSON.provider)) {
+            if (localJSON.provider[key]?.apiKey) {
+              if (!globalJSON.provider[key]) globalJSON.provider[key] = {};
+              if (globalJSON.provider[key].apiKey !== localJSON.provider[key].apiKey) {
+                globalJSON.provider[key].apiKey = localJSON.provider[key].apiKey;
+                migrated = true;
+              }
+            }
+          }
+
+          if (migrated) {
+            const dir = path.dirname(globalPath);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(globalPath, JSON.stringify(globalJSON, null, 2), "utf-8");
+          }
+        }
+      }
+    } catch {}
+
     // Show banner
     this.renderer.showBanner();
 

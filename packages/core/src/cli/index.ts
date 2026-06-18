@@ -130,14 +130,26 @@ async function main(): Promise<void> {
 
         const { getProviderRegistry } = await import('../provider/index.js');
         const registry = getProviderRegistry();
-        const resolved = registry.resolveModel(model);
+        let resolved = registry.resolveModel(model);
+        if (!resolved) {
+          let fallbackModel = 'claude-sonnet-4-20250514';
+          if (config.provider?.google?.apiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) {
+            fallbackModel = 'gemini-2.5-flash';
+          } else if (config.provider?.anthropic?.apiKey || process.env.ANTHROPIC_API_KEY) {
+            fallbackModel = 'claude-sonnet-4-20250514';
+          } else if (config.provider?.openai?.apiKey || process.env.OPENAI_API_KEY) {
+            fallbackModel = 'gpt-4o';
+          }
+          resolved = registry.resolveModel(fallbackModel);
+        }
+        const finalModel = resolved?.model.id || model;
         const provider = (argv.provider as string) || resolved?.provider.name || 'anthropic';
 
         // Launch the TUI
         const { QuandCodeTUI } = await import('../../../tui/src/index.js');
         
         const tui = new QuandCodeTUI({
-          model,
+          model: finalModel,
           provider,
           mode,
           autoApprove: false,
@@ -330,13 +342,25 @@ async function main(): Promise<void> {
 
         const { getProviderRegistry } = await import('../provider/index.js');
         const registry = getProviderRegistry();
-        const resolved = registry.resolveModel(defaultModel);
+        let resolved = registry.resolveModel(defaultModel);
+        if (!resolved) {
+          let fallbackModel = 'claude-sonnet-4-20250514';
+          if (config.provider?.google?.apiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) {
+            fallbackModel = 'gemini-2.5-flash';
+          } else if (config.provider?.anthropic?.apiKey || process.env.ANTHROPIC_API_KEY) {
+            fallbackModel = 'claude-sonnet-4-20250514';
+          } else if (config.provider?.openai?.apiKey || process.env.OPENAI_API_KEY) {
+            fallbackModel = 'gpt-4o';
+          }
+          resolved = registry.resolveModel(fallbackModel);
+        }
+        const finalModel = resolved?.model.id || defaultModel;
         const provider = resolved?.provider.name || 'anthropic';
 
         // Launch TUI in interactive REPL mode (no one-shot prompt)
         const { QuandCodeTUI } = await import('../../../tui/src/index.js');
         const tui = new QuandCodeTUI({
-          model: defaultModel,
+          model: finalModel,
           provider,
           mode: 'build',
           autoApprove: false,
