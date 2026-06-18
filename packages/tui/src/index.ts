@@ -181,6 +181,13 @@ export class QuandCodeTUI {
       originalOnModeSwitch?.(newMode);
     };
 
+    events.onPermissionRequest = async (toolName: string, description: string) => {
+      const prompt = `\n${CYBER.warning("🛡️")} ${CYBER.neonYellow.bold("SECURITY GATE:")} ${CYBER.textBright(description)}\n  ${CYBER.neonYellow("Confirm (y/N) › ")}`;
+      const answer = await this.input.askQuestion(prompt);
+      const approved = answer.trim().toLowerCase() === "y" || answer.trim().toLowerCase() === "yes";
+      return approved;
+    };
+
     const agent = new Agent({
       model: this.config.model,
       provider: this.config.provider,
