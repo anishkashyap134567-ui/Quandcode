@@ -14,6 +14,10 @@
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green?style=flat-square" />
 </p>
 
+<p align="center">
+  <img src="media/tui_screenshot.svg" alt="QuandCode TUI Preview" width="100%" />
+</p>
+
 ---
 
 ## ✨ Features
