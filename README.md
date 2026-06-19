@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <img src="media/tui_screenshot.svg" alt="QuandCode TUI Preview" width="100%" />
+  <img src="media/tui_screenshot.png" alt="QuandCode TUI Preview" width="100%" />
 </p>
 
 ---
