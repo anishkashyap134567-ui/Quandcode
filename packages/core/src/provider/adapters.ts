@@ -14,6 +14,7 @@ import type {
   GenerateResult,
 } from "./types.js";
 import { getModelsByProvider } from "./models.js";
+import { discoverConfig } from "../config/index.js";
 
 // ── Helper: Safe fetch wrapper ────────────────────────────
 async function postJSON(url: string, headers: Record<string, string>, body: any) {
@@ -37,7 +38,13 @@ export class AnthropicProvider implements LLMProvider {
   readonly displayName = "Anthropic";
 
   isConfigured(): boolean {
-    return !!process.env.ANTHROPIC_API_KEY;
+    if (process.env.ANTHROPIC_API_KEY) return true;
+    try {
+      const config = discoverConfig();
+      return !!config.provider?.anthropic?.apiKey;
+    } catch {
+      return false;
+    }
   }
 
   listModels(): ProviderModel[] {
@@ -49,9 +56,15 @@ export class AnthropicProvider implements LLMProvider {
   }
 
   async generate(options: GenerateOptions): Promise<GenerateResult> {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    let apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
-      throw new Error("ANTHROPIC_API_KEY environment variable is not set.");
+      try {
+        const config = discoverConfig();
+        apiKey = config.provider?.anthropic?.apiKey;
+      } catch {}
+    }
+    if (!apiKey) {
+      throw new Error("ANTHROPIC_API_KEY environment variable is not set and could not find key in quandcode.json.");
     }
 
     const startTime = Date.now();
@@ -186,7 +199,13 @@ export class OpenAIProvider implements LLMProvider {
   readonly displayName = "OpenAI";
 
   isConfigured(): boolean {
-    return !!process.env.OPENAI_API_KEY;
+    if (process.env.OPENAI_API_KEY) return true;
+    try {
+      const config = discoverConfig();
+      return !!config.provider?.openai?.apiKey;
+    } catch {
+      return false;
+    }
   }
 
   listModels(): ProviderModel[] {
@@ -198,9 +217,18 @@ export class OpenAIProvider implements LLMProvider {
   }
 
   async generate(options: GenerateOptions): Promise<GenerateResult> {
-    const apiKey = process.env.OPENAI_API_KEY;
+    let apiKey = process.env.OPENAI_API_KEY;
+    let customBaseURL = "";
+    try {
+      const config = discoverConfig();
+      if (!apiKey) {
+        apiKey = config.provider?.openai?.apiKey;
+      }
+      customBaseURL = config.provider?.openai?.baseURL || "";
+    } catch {}
+
     if (!apiKey) {
-      throw new Error("OPENAI_API_KEY environment variable is not set.");
+      throw new Error("OPENAI_API_KEY environment variable is not set and could not find key in quandcode.json.");
     }
 
     const startTime = Date.now();
@@ -259,7 +287,7 @@ export class OpenAIProvider implements LLMProvider {
       },
     }));
 
-    const url = "https://api.openai.com/v1/chat/completions";
+    const url = customBaseURL ? `${customBaseURL.replace(/\/v1\/?$/, "")}/v1/chat/completions` : "https://api.openai.com/v1/chat/completions";
     const headers = {
       "Authorization": `Bearer ${apiKey}`,
       "content-type": "application/json",
@@ -319,7 +347,13 @@ export class GeminiProvider implements LLMProvider {
   readonly displayName = "Google Gemini";
 
   isConfigured(): boolean {
-    return !!process.env.GEMINI_API_KEY || !!process.env.GOOGLE_API_KEY;
+    if (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) return true;
+    try {
+      const config = discoverConfig();
+      return !!config.provider?.google?.apiKey;
+    } catch {
+      return false;
+    }
   }
 
   listModels(): ProviderModel[] {
@@ -331,9 +365,18 @@ export class GeminiProvider implements LLMProvider {
   }
 
   async generate(options: GenerateOptions): Promise<GenerateResult> {
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    let apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    let customBaseURL = "";
+    try {
+      const config = discoverConfig();
+      if (!apiKey) {
+        apiKey = config.provider?.google?.apiKey;
+      }
+      customBaseURL = config.provider?.google?.baseURL || "";
+    } catch {}
+
     if (!apiKey) {
-      throw new Error("GEMINI_API_KEY or GOOGLE_API_KEY environment variable is not set.");
+      throw new Error("GEMINI_API_KEY or GOOGLE_API_KEY environment variable is not set and could not find key in quandcode.json.");
     }
 
     const startTime = Date.now();
@@ -393,7 +436,7 @@ export class GeminiProvider implements LLMProvider {
     }));
 
     // Use Gemini OpenAI-compatibility endpoint
-    const url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+    const url = customBaseURL ? `${customBaseURL.replace(/\/v1\/?$/, "")}/v1/chat/completions` : "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
     const headers = {
       "Authorization": `Bearer ${apiKey}`,
       "content-type": "application/json",
@@ -424,6 +467,143 @@ export class GeminiProvider implements LLMProvider {
             });
           } catch (e) {
             console.warn("Failed to parse tool arguments from Gemini:", e);
+          }
+        }
+      }
+    }
+
+    const finishReason = choice.finish_reason === "tool_calls" ? "tool_calls" : "stop";
+
+    return {
+      content,
+      toolCalls,
+      usage: {
+        inputTokens: data.usage?.prompt_tokens || 0,
+        outputTokens: data.usage?.completion_tokens || 0,
+      },
+      model: options.model,
+      provider: this.name,
+      durationMs,
+      finishReason,
+    };
+  }
+}
+
+// ── 4. Ollama Provider ────────────────────────────────────
+export class OllamaProvider implements LLMProvider {
+  readonly name = "ollama";
+  readonly displayName = "Ollama";
+
+  isConfigured(): boolean {
+    // Ollama is a local provider, so it is always assumed configured
+    return true;
+  }
+
+  listModels(): ProviderModel[] {
+    return getModelsByProvider(this.name);
+  }
+
+  getModel(modelId: string): ProviderModel | undefined {
+    return this.listModels().find((m) => m.id === modelId);
+  }
+
+  async generate(options: GenerateOptions): Promise<GenerateResult> {
+    const startTime = Date.now();
+    let baseURL = "http://127.0.0.1:11434";
+    try {
+      const config = discoverConfig();
+      if (config.provider?.ollama?.baseURL) {
+        baseURL = config.provider.ollama.baseURL;
+      }
+    } catch {}
+
+    const ollamaMessages: any[] = [];
+
+    // Inject system prompt first
+    if (options.systemPrompt) {
+      ollamaMessages.push({ role: "system", content: options.systemPrompt });
+    }
+
+    // Map conversation messages to Ollama format
+    for (const msg of options.messages) {
+      if (msg.role === "system") {
+        continue;
+      }
+
+      if (msg.role === "tool" && msg.toolCallId) {
+        ollamaMessages.push({
+          role: "tool",
+          tool_call_id: msg.toolCallId,
+          content: msg.content,
+        });
+      } else if (msg.role === "assistant") {
+        const oaiMsg: any = {
+          role: "assistant",
+          content: msg.content || null,
+        };
+
+        if (msg.toolCalls && msg.toolCalls.length > 0) {
+          oaiMsg.tool_calls = msg.toolCalls.map((tc) => ({
+            id: tc.id,
+            type: "function",
+            function: {
+              name: tc.name,
+              arguments: JSON.stringify(tc.args),
+            },
+          }));
+        }
+
+        ollamaMessages.push(oaiMsg);
+      } else {
+        ollamaMessages.push({
+          role: "user",
+          content: msg.content,
+        });
+      }
+    }
+
+    // Map tools to Ollama format
+    const tools = options.tools?.map((t) => ({
+      type: "function" as const,
+      function: {
+        name: t.name,
+        description: t.description,
+        parameters: t.parameters,
+      },
+    }));
+
+    const cleanBaseURL = baseURL.replace(/\/v1\/?$/, "");
+    const url = `${cleanBaseURL}/v1/chat/completions`;
+    const headers = {
+      "content-type": "application/json",
+    };
+
+    const body = {
+      model: options.model,
+      messages: ollamaMessages,
+      tools: tools && tools.length > 0 ? tools : undefined,
+      max_completion_tokens: options.maxTokens || undefined,
+    };
+
+    const data = await postJSON(url, headers, body);
+    const durationMs = Date.now() - startTime;
+
+    // Parse response
+    const choice = data.choices?.[0] || {};
+    const content = choice.message?.content || "";
+    const toolCalls: any[] = [];
+
+    if (Array.isArray(choice.message?.tool_calls)) {
+      for (const tc of choice.message.tool_calls) {
+        if (tc.type === "function") {
+          try {
+            toolCalls.push({
+              id: tc.id,
+              name: tc.function.name,
+              args: JSON.parse(tc.function.arguments),
+            });
+          } catch (e) {
+            console.warn("Failed to parse tool arguments from Ollama:", e);
           }
         }
       }

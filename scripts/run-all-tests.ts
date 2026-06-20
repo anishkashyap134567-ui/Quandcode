@@ -14,6 +14,7 @@ const suites = [
   { name: "Agent Loop", path: "packages/core/src/agent/test.ts" },
   { name: "LSP Integration", path: "packages/core/src/lsp/test.ts" },
   { name: "Sandbox Client", path: "packages/core/src/sandbox/test.ts" },
+  { name: "Provider Subsystem", path: "packages/core/src/provider/test.ts" },
   { name: "Terminal UI", path: "packages/tui/src/test.ts" },
 ];
 
@@ -41,6 +42,6 @@ if (failed) {
   console.log(chalk.red.bold("\n✖ Test execution completed with failures.\n"));
   process.exit(1);
 } else {
-  console.log(chalk.green.bold("\n✔ All 163 unit tests passed across all 9 suites! 🔥\n"));
+  console.log(chalk.green.bold("\n✔ All 168 unit tests passed across all 10 suites! 🔥\n"));
   process.exit(0);
 }

@@ -293,7 +293,7 @@ export class QuandCodeTUI {
     let inWizard = true;
     while (inWizard) {
       console.log(CYBER.textBright("Select an option:"));
-      console.log(`  ${CYBER.neonCyan("1.")} Set API Key (Anthropic / OpenAI / Gemini)`);
+      console.log(`  ${CYBER.neonCyan("1.")} Set API Key / Base URL (Anthropic / OpenAI / Gemini / Ollama)`);
       console.log(`  ${CYBER.neonCyan("2.")} Set Default Model`);
       console.log(`  ${CYBER.neonCyan("3.")} View Active Config`);
       console.log(`  ${CYBER.neonCyan("4.")} Exit Wizard`);
@@ -306,9 +306,24 @@ export class QuandCodeTUI {
         console.log(`  ${CYBER.neonCyan("1.")} Anthropic`);
         console.log(`  ${CYBER.neonCyan("2.")} OpenAI`);
         console.log(`  ${CYBER.neonCyan("3.")} Google Gemini`);
+        console.log(`  ${CYBER.neonCyan("4.")} Ollama (Local)`);
         console.log();
-        const provChoice = await this.input.askQuestion(CYBER.neonCyan("Enter choice (1-3) › "));
+        const provChoice = await this.input.askQuestion(CYBER.neonCyan("Enter choice (1-4) › "));
         
+        if (provChoice === "4") {
+          let baseUrl = await this.input.askQuestion(CYBER.neonCyan("Enter Ollama Base URL [default: http://127.0.0.1:11434] › "));
+          if (!baseUrl.trim()) baseUrl = "http://127.0.0.1:11434";
+
+          const currentConfig = this.loadConfig();
+          if (!currentConfig.provider) currentConfig.provider = {};
+          if (!currentConfig.provider.ollama) currentConfig.provider.ollama = {};
+          currentConfig.provider.ollama.baseURL = baseUrl;
+          this.saveConfig(currentConfig);
+
+          console.log(`\n${CYBER.success("✔")} Ollama Base URL saved to ${CYBER.textBright("quandcode.json")}!\n`);
+          continue;
+        }
+
         let providerName = "";
         let envVar = "";
         if (provChoice === "1") { providerName = "anthropic"; envVar = "ANTHROPIC_API_KEY"; }
@@ -348,22 +363,20 @@ export class QuandCodeTUI {
         console.log(`  ${CYBER.neonCyan("2.")} Gemini 2.5 Pro (google/gemini-2.5-pro)`);
         console.log(`  ${CYBER.neonCyan("3.")} Claude Sonnet 4 (anthropic/claude-sonnet-4-20250514)`);
         console.log(`  ${CYBER.neonCyan("4.")} GPT-4o (openai/gpt-4o)`);
-        console.log(`  ${CYBER.neonCyan("5.")} GPT-4o Mini (openai/gpt-4o-mini)`);
-        console.log(`  ${CYBER.neonCyan("6.")} o3-mini (openai/o3-mini)`);
-        console.log(`  ${CYBER.neonCyan("7.")} DeepSeek V3 (deepseek/deepseek-chat)`);
-        console.log(`  ${CYBER.neonCyan("8.")} Custom Model ID`);
+        console.log(`  ${CYBER.neonCyan("5.")} Llama 3.1 Local (ollama/llama3.1)`);
+        console.log(`  ${CYBER.neonCyan("6.")} Qwen 2.5 Coder Local (ollama/qwen2.5-coder)`);
+        console.log(`  ${CYBER.neonCyan("7.")} Custom Model ID`);
         console.log();
 
-        const modelChoice = await this.input.askQuestion(CYBER.neonCyan("Select a model (1-8) › "));
+        const modelChoice = await this.input.askQuestion(CYBER.neonCyan("Select a model (1-7) › "));
         let modelId = "";
         if (modelChoice === "1") modelId = "gemini-2.5-flash";
         else if (modelChoice === "2") modelId = "gemini-2.5-pro";
         else if (modelChoice === "3") modelId = "claude-sonnet-4-20250514";
         else if (modelChoice === "4") modelId = "gpt-4o";
-        else if (modelChoice === "5") modelId = "gpt-4o-mini";
-        else if (modelChoice === "6") modelId = "o3-mini";
-        else if (modelChoice === "7") modelId = "deepseek-chat";
-        else if (modelChoice === "8") {
+        else if (modelChoice === "5") modelId = "llama3.1";
+        else if (modelChoice === "6") modelId = "qwen2.5-coder";
+        else if (modelChoice === "7") {
           modelId = await this.input.askQuestion(CYBER.neonCyan("Enter custom model ID › "));
         }
 
@@ -380,7 +393,8 @@ export class QuandCodeTUI {
         if (resolved) {
           this.config.provider = resolved.provider.name;
         } else {
-          this.config.provider = "anthropic";
+          // Default fallback
+          this.config.provider = modelId.startsWith("ollama/") || modelChoice === "5" || modelChoice === "6" ? "ollama" : "anthropic";
         }
 
         // Persist on disk
@@ -399,9 +413,13 @@ export class QuandCodeTUI {
         const openaiSet = !!process.env.OPENAI_API_KEY;
         const geminiSet = !!process.env.GEMINI_API_KEY || !!process.env.GOOGLE_API_KEY;
 
+        const currentConfig = this.loadConfig();
+        const ollamaBaseUrl = currentConfig.provider?.ollama?.baseURL || "http://127.0.0.1:11434 (default)";
+
         console.log(`│  ${CYBER.textDim("Anthropic Key:")}    ${anthropicSet ? CYBER.success("LOADED (process.env)") : CYBER.error("NOT CONFIGURED")}`);
         console.log(`│  ${CYBER.textDim("OpenAI Key:")}       ${openaiSet ? CYBER.success("LOADED (process.env)") : CYBER.error("NOT CONFIGURED")}`);
         console.log(`│  ${CYBER.textDim("Google Gemini Key:")} ${geminiSet ? CYBER.success("LOADED (process.env)") : CYBER.error("NOT CONFIGURED")}`);
+        console.log(`│  ${CYBER.textDim("Ollama Base URL:")}  ${CYBER.neonCyan(ollamaBaseUrl)}`);
         console.log(CYBER.neonCyan("└─────────────────────────────────────────"));
         console.log();
 

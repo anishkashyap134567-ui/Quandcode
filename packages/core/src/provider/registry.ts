@@ -12,7 +12,7 @@ import type {
   GenerateResult,
   ProviderConfig,
 } from "./types.js";
-import { AnthropicProvider, OpenAIProvider, GeminiProvider } from "./adapters.js";
+import { AnthropicProvider, OpenAIProvider, GeminiProvider, OllamaProvider } from "./adapters.js";
 import {
   MODEL_CATALOG,
   getModelById,
@@ -120,13 +120,36 @@ export class ProviderRegistry {
       }
     }
 
+    // Support dynamic resolving for ollama/ prefixed models not in catalog
+    if (!providerName && modelSpec.startsWith("ollama/")) {
+      providerName = "ollama";
+      modelId = modelSpec.split("/")[1] || modelSpec;
+    }
+
     if (!providerName) return null;
 
     const provider = this.providers.get(providerName);
     if (!provider) return null;
 
-    const model = catalogModel || provider.getModel(modelId);
-    if (!model) return null;
+    let model = catalogModel || provider.getModel(modelId);
+    if (!model) {
+      if (providerName === "ollama") {
+        model = {
+          id: modelId,
+          provider: "ollama",
+          displayName: `Ollama - ${modelId}`,
+          contextWindow: 128000,
+          maxOutputTokens: 8192,
+          inputCostPerMillion: 0,
+          outputCostPerMillion: 0,
+          supportsToolCalling: true,
+          supportsStreaming: true,
+          supportsVision: false,
+        };
+      } else {
+        return null;
+      }
+    }
 
     return { provider, model };
   }
@@ -201,6 +224,7 @@ export function getProviderRegistry(): ProviderRegistry {
     _globalRegistry.registerProvider(new AnthropicProvider());
     _globalRegistry.registerProvider(new OpenAIProvider());
     _globalRegistry.registerProvider(new GeminiProvider());
+    _globalRegistry.registerProvider(new OllamaProvider());
   }
   return _globalRegistry;
 }

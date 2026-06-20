@@ -130,6 +130,11 @@ async function main(): Promise<void> {
 
         const { getProviderRegistry } = await import('../provider/index.js');
         const registry = getProviderRegistry();
+        if (config.provider) {
+          for (const [name, provConfig] of Object.entries(config.provider)) {
+            registry.setProviderConfig(name, provConfig as any);
+          }
+        }
         let resolved = registry.resolveModel(model);
         if (!resolved) {
           let fallbackModel = 'claude-sonnet-4-20250514';
@@ -342,6 +347,11 @@ async function main(): Promise<void> {
 
         const { getProviderRegistry } = await import('../provider/index.js');
         const registry = getProviderRegistry();
+        if (config.provider) {
+          for (const [name, provConfig] of Object.entries(config.provider)) {
+            registry.setProviderConfig(name, provConfig as any);
+          }
+        }
         let resolved = registry.resolveModel(defaultModel);
         if (!resolved) {
           let fallbackModel = 'claude-sonnet-4-20250514';
