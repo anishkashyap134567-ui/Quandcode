@@ -96,6 +96,30 @@ export class QuandCodeTUI {
     // Show banner
     this.renderer.showBanner();
 
+    // Check for previous session to resume if it's an interactive TUI session
+    if (!this.config.prompt) {
+      try {
+        const { SessionManager } = await import("@quandcode/core");
+        const sessionManager = new SessionManager(process.cwd());
+        const lastSession = await sessionManager.getLastSession();
+        if (lastSession) {
+          this.sessionId = lastSession.id;
+          this.config.mode = lastSession.activeAgent as any;
+          this.config.model = lastSession.model;
+          this.config.provider = lastSession.provider;
+          this.statusBar.update({
+            mode: this.config.mode,
+            model: this.config.model,
+            provider: this.config.provider,
+          });
+          console.log(
+            `  ${CYBER.success("✔")} ${CYBER.textBright("Auto-resumed last active session:")} ${CYBER.neonCyan(lastSession.id.slice(0, 8))}… (${CYBER.textDim(lastSession.title)})`
+          );
+          console.log();
+        }
+      } catch {}
+    }
+
     // Show startup info
     console.log(
       `  ${CYBER.textDim("Model:")}    ${CYBER.neonCyan(this.config.provider + "/" + this.config.model)}`
@@ -245,6 +269,78 @@ export class QuandCodeTUI {
       case "config":
         await this.runConfigWizard();
         break;
+
+      case "sessions": {
+        try {
+          const { SessionManager } = await import("@quandcode/core");
+          const sessionManager = new SessionManager(process.cwd());
+          const sessions = await sessionManager.listSessions();
+          
+          console.log();
+          console.log(CYBER.neonCyan("┌── Previous Sessions ──────────────────────────────"));
+          if (sessions.length === 0) {
+            console.log(`│  ${CYBER.textDim("No saved sessions found.")}`);
+          } else {
+            for (const s of sessions) {
+              const activeMark = s.id === this.sessionId ? CYBER.neonGreen(" ● (active)") : "";
+              console.log(`│  ${CYBER.neonCyan(s.id.slice(0, 8))}… : ${CYBER.textBright(s.title)}${activeMark}`);
+              console.log(`│    ${CYBER.textDim("Model:")} ${s.provider}/${s.model} | ${CYBER.textDim("Updated:")} ${new Date(s.updatedAt).toLocaleString()}`);
+            }
+            console.log(`│`);
+            console.log(`│  Type ${CYBER.neonCyan("/switch <id>")} to load a session.`);
+          }
+          console.log(CYBER.neonCyan("└───────────────────────────────────────────────────"));
+          console.log();
+        } catch (err) {
+          console.log(`\n${CYBER.error("✖ Failed to list sessions:")} ${(err as Error).message}\n`);
+        }
+        break;
+      }
+
+      case "switch": {
+        const parts = input.trim().split(" ");
+        const targetIdSpec = parts[1];
+        if (!targetIdSpec) {
+          console.log(`\n${CYBER.error("✖ Please specify a session ID to switch to.")}\n`);
+          break;
+        }
+
+        try {
+          const { SessionManager } = await import("@quandcode/core");
+          const sessionManager = new SessionManager(process.cwd());
+          
+          // Find the actual session ID. User might type the prefix (e.g. first 8 chars)
+          const sessions = await sessionManager.listSessions();
+          const found = sessions.find(s => s.id === targetIdSpec || s.id.startsWith(targetIdSpec));
+          
+          if (!found) {
+            console.log(`\n${CYBER.error(`✖ Session not found matching "${targetIdSpec}".`)}\n`);
+            break;
+          }
+
+          this.sessionId = found.id;
+          this.config.mode = found.activeAgent as any;
+          this.config.model = found.model;
+          this.config.provider = found.provider;
+          
+          this.statusBar.update({
+            mode: this.config.mode,
+            model: this.config.model,
+            provider: this.config.provider,
+          });
+
+          console.log(`\n${CYBER.success("✔")} Switched to session: ${CYBER.neonCyan(found.id)} (${CYBER.textDim(found.title)})\n`);
+        } catch (err) {
+          console.log(`\n${CYBER.error("✖ Failed to switch session:")} ${(err as Error).message}\n`);
+        }
+        break;
+      }
+
+      case "new": {
+        this.sessionId = null;
+        console.log(`\n${CYBER.success("✔")} Started a new session. Next prompt will create a fresh context.\n`);
+        break;
+      }
     }
   }
 

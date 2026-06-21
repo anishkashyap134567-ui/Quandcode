@@ -24,6 +24,9 @@ const COMMANDS: Record<string, { description: string; action: string }> = {
   "/build":   { description: "Switch to Build mode", action: "build" },
   "/models":  { description: "List available models", action: "models" },
   "/session": { description: "Show current session info", action: "session" },
+  "/sessions":{ description: "List all previous sessions", action: "sessions" },
+  "/switch":  { description: "Switch active session (e.g., /switch <id>)", action: "switch" },
+  "/new":     { description: "Start a brand-new session", action: "new" },
   "/help":    { description: "Show help", action: "help" },
   "/compact": { description: "Toggle compact output", action: "compact" },
   "/config":  { description: "Open interactive configuration wizard", action: "config" },
@@ -104,6 +107,9 @@ export class InputHandler {
       case "build":
       case "models":
       case "session":
+      case "sessions":
+      case "switch":
+      case "new":
       case "compact":
       case "config":
         return cmdDef.action;
