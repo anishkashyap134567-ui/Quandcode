@@ -158,8 +158,8 @@ addBodyText('Created LSPClient communicating definition queries to the TypeScrip
 addSubsectionHeader('Phase 11: Cyber Terminal UI');
 addBodyText('Designed a premium, cyberpunk terminal REPL using Ink, adding custom neon palettes, Matrix spinners, realtime streaming tokens, and a config wizard.');
 
-addSubsectionHeader('Phase 12: CI/CD & LLM Adapters');
-addBodyText('Created zero-dependency HTTP fetch API adapters for OpenAI, Anthropic, and Google Gemini. Set up automated CI/CD using GitHub Actions executing tests and type checking.');
+addSubsectionHeader('Phase 12: CI/CD, LLM Adapters & Ollama Support');
+addBodyText('Created zero-dependency HTTP fetch API adapters for OpenAI, Anthropic, Google Gemini, and local Ollama. Implemented config fallbacks, base URL auto-prepending, and dynamic local model resolution. Set up automated CI/CD using GitHub Actions executing tests and type checking.');
 
 // ── SECTION 4: KEY ENGINEERING HIGHLIGHTS ──────────────────────────────────
 addSectionHeader('4. Key Engineering Highlights');
@@ -167,6 +167,11 @@ addSectionHeader('4. Key Engineering Highlights');
 addSubsectionHeader('🔐 Safe Global API Key & Config Storage');
 addBodyText(
   'Created a global-to-local configuration merging engine. Saved credentials (like your Google Gemini API key) are stored safely in your user home directory (~/.config/quandcode/quandcode.json) to prevent accidental git leaks, with local project configurations acting as overlays.'
+);
+
+addSubsectionHeader('⚡ Local Model Execution (Ollama)');
+addBodyText(
+  'Enabled dynamic local model execution via Ollama. The provider dynamically resolves any model prefixed with ollama/ (e.g., ollama/qwen2.5-coder) and handles local base URL fallbacks. It also auto-prepends http:// for raw IP configurations.'
 );
 
 addSubsectionHeader('⚡ Self-Healing CLI Model Fallback');
@@ -177,7 +182,7 @@ addBodyText(
 // ── SECTION 5: VERIFICATION & TESTING ─────────────────────────────────────
 addSectionHeader('5. Verification & Testing');
 addBodyText(
-  'QuandCode includes a comprehensive, custom test suite verifying every component. Running "bun run test" executes all 163 unit tests across 9 suites, ensuring storage engine, agent loops, tools, and UI modules operate with a 100% pass rate.'
+  'QuandCode includes a comprehensive, custom test suite verifying every component. Running "bun run test" executes all 168 unit tests across 10 suites, ensuring storage engine, provider registry, agent loops, tools, and UI modules operate with a 100% pass rate.'
 );
 
 // ── DRAW HEADERS & FOOTERS (Buffered Page Range) ───────────────────────────
