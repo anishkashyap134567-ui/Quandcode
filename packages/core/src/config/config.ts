@@ -8,7 +8,7 @@ const PermissionLevel = z.enum(['allow', 'ask', 'deny']);
 // Provider configuration
 const ProviderConfig = z.object({
   apiKey: z.string().optional(),
-  baseURL: z.string().url().optional(),
+  baseURL: z.string().optional(),
   models: z.record(z.string(), z.object({})).optional(),
 }).passthrough();
 

@@ -225,6 +225,9 @@ export class OpenAIProvider implements LLMProvider {
         apiKey = config.provider?.openai?.apiKey;
       }
       customBaseURL = config.provider?.openai?.baseURL || "";
+      if (customBaseURL && !/^https?:\/\//i.test(customBaseURL)) {
+        customBaseURL = `http://${customBaseURL}`;
+      }
     } catch {}
 
     if (!apiKey) {
@@ -373,6 +376,9 @@ export class GeminiProvider implements LLMProvider {
         apiKey = config.provider?.google?.apiKey;
       }
       customBaseURL = config.provider?.google?.baseURL || "";
+      if (customBaseURL && !/^https?:\/\//i.test(customBaseURL)) {
+        customBaseURL = `http://${customBaseURL}`;
+      }
     } catch {}
 
     if (!apiKey) {
@@ -514,6 +520,9 @@ export class OllamaProvider implements LLMProvider {
       const config = discoverConfig();
       if (config.provider?.ollama?.baseURL) {
         baseURL = config.provider.ollama.baseURL;
+      }
+      if (baseURL && !/^https?:\/\//i.test(baseURL)) {
+        baseURL = `http://${baseURL}`;
       }
     } catch {}
 
