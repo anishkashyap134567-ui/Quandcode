@@ -6,6 +6,7 @@
   "workspaces": ["packages/*"],
   "scripts": {
     "dev": "bun run --filter '@quandcode/*' dev",
+    "desktop": "bun --filter @quandcode/desktop run tauri dev",
     "build": "bun run --filter '@quandcode/*' build",
     "typecheck": "tsc --noEmit",
     "quandcode": "bun run packages/core/src/cli/index.ts",

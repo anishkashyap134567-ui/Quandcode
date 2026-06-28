@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="QuandCode — The Cyberpunk AI Coding Agent. Multi-provider LLMs, safe Rust sandboxing, and interactive terminal UI.">
+  <title>QuandCode — The AI Coding Agent</title>
+  <!-- Google Fonts: Inter and Fira Code for code blocks -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Background Cyber Grid Effect -->
+  <div class="cyber-grid"></div>
+  <div class="cyber-radial"></div>
+
+  <!-- Header / Navigation -->
+  <header class="navbar">
+    <div class="logo">
+      <span class="logo-bolt">⚡</span> QUANDCODE
+    </div>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#simulator">TUI Simulator</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#install" class="btn-secondary">Install</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="hero">
+    <div class="hero-content">
+      <div class="version-badge">v0.1.0 · TypeScript + Rust</div>
+      <h1 class="hero-title">
+        QUANDCODE <br>
+        <span class="text-glow">The AI Coding Agent</span>
+      </h1>
+      <p class="hero-desc">
+        A premium, zero-dependency local AI coding agent built for rapid development. Features a Plan/Build dual-agent loop, unified API adapters for 75+ providers (with native Ollama support), and a state-of-the-art cyberpunk terminal user interface.
+      </p>
+      <div class="hero-actions">
+        <a href="#install" class="btn-primary">Get Started</a>
+        <a href="#simulator" class="btn-secondary">Try Simulator</a>
+      </div>
+    </div>
+
+    <!-- TUI Terminal Viewport -->
+    <div id="simulator" class="terminal-container">
+      <div class="terminal-header">
+        <div class="terminal-tabs">
+          <div class="terminal-tab active">
+            <span class="tab-title">QuandCodeTUI</span>
+            <span class="tab-close">×</span>
+          </div>
+          <div class="terminal-tab-add">+</div>
+          <div class="terminal-tab-dropdown">▾</div>
+        </div>
+        <div class="terminal-window-actions">
+          <span class="win-btn win-min">─</span>
+          <span class="win-btn win-max">▢</span>
+          <span class="win-btn win-close">✕</span>
+        </div>
+      </div>
+      <div class="terminal-body" id="terminal-body">
+        <!-- Interactive Terminal Output -->
+        <div class="terminal-history" id="terminal-history">
+          <!-- Command Invocation -->
+          <div class="terminal-log-line command-invocation">
+            <span class="ansi-magenta">$</span> <span class="ansi-gray">bun run packages/core/src/cli/index.ts</span>
+          </div>
+          <!-- Banner Render -->
+          <pre class="banner"><span class="ansi-cyan">╔══════════════════════════════════════════════════════════╗</span>
+<span class="ansi-cyan">║</span>  <span class="ansi-white">█▀█</span> <span class="ansi-gray">█ █</span> <span class="ansi-white">█▀█</span> <span class="ansi-gray">█▄ █</span> <span class="ansi-white">█▀▄</span> <span class="ansi-gray">█▀▀</span> <span class="ansi-white">█▀█</span> <span class="ansi-gray">█▀▄</span> <span class="ansi-white">█▀▀</span>                  <span class="ansi-cyan">║</span>
+<span class="ansi-cyan">║</span>  <span class="ansi-white">█▄█</span> <span class="ansi-gray">█▄█</span> <span class="ansi-white">█▀█</span> <span class="ansi-gray">█ ▀█</span> <span class="ansi-white">█▄▀</span> <span class="ansi-gray">█▄▄</span> <span class="ansi-white">█▄█</span> <span class="ansi-gray">█▄▀</span> <span class="ansi-white">██▄</span>                  <span class="ansi-cyan">║</span>
+<span class="ansi-cyan">║</span>                                                          <span class="ansi-cyan">║</span>
+<span class="ansi-cyan">║</span>  <span class="ansi-cyan">⚡</span> <span class="ansi-white">The AI Coding Agent</span> <span class="ansi-cyan">·</span> <span class="ansi-gray">v0.1.0</span> <span class="ansi-cyan">·</span> <span class="ansi-gray">TypeScript + Rust</span>     <span class="ansi-cyan">║</span>
+<span class="ansi-cyan">╚══════════════════════════════════════════════════════════╝</span></pre>
+          <div class="tui-init-info">
+            <span class="ansi-gray">Model:</span>    <span class="ansi-cyan-bright">google/gemini-2.5-flash</span><br>
+            <span class="ansi-gray">Mode:</span>     <span class="ansi-mode-label" id="terminal-mode-label-init"><span class="ansi-white">▶</span> <span class="badge-build">BUILD</span></span><br>
+            <span class="ansi-gray">CWD:</span>      <span class="ansi-gray">C:\Users\Anish\OneDrive\Documents\Big project\quandcode</span><br><br>
+            <span class="ansi-gray">Type a prompt to begin, or </span><span class="ansi-cyan">/help</span> <span class="ansi-gray">for commands.</span><br><br>
+          </div>
+        </div>
+        <!-- Input Row -->
+        <div class="terminal-input-row">
+          <span class="ansi-mode-label" id="terminal-mode-label"><span class="arrow ansi-white">▶</span> <span class="badge-build">BUILD</span></span>
+          <span class="ansi-cyan-bright">›</span>
+          <div class="input-wrapper">
+            <input type="text" id="terminal-input" placeholder="" autofocus autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Features Section -->
+  <section id="features" class="features-section">
+    <div class="section-header">
+      <h2 class="section-title">Core Subsystems</h2>
+      <p class="section-subtitle">Engineered for security, speed, and local usability.</p>
+    </div>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="card-icon">🔌</div>
+        <h3 class="card-title">75+ LLM Providers</h3>
+        <p class="card-desc">
+          Unified abstraction layer supporting Anthropic, OpenAI, Gemini, and local **Ollama** models. Includes local credentials auto-fallback and automatic IP address protocol resolving.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="card-icon">🛡️</div>
+        <h3 class="card-title">Rust-powered Sandbox</h3>
+        <p class="card-desc">
+          Executes shell/bash commands and file operations within an OS-level sandbox (Windows Job Objects & Unix namespaces) keeping your workspace secure.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="card-icon">💻</div>
+        <h3 class="card-title">Cyberpunk Terminal UI</h3>
+        <p class="card-desc">
+          Interactive REPL built with terminal layouts, featuring realtime output tokens count, duration trackers, cost estimations, and full session resume memory.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture Timeline Section -->
+  <section id="architecture" class="arch-section">
+    <div class="section-header">
+      <h2 class="section-title">The 12 Development Phases</h2>
+      <p class="section-subtitle">A modular design built from foundation to polished UI.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-badge">01</div>
+        <div class="timeline-panel">
+          <h4>Monorepo Foundation</h4>
+          <p>Bun Workspaces, TypeScript rules, and package link structures.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-badge">02</div>
+        <div class="timeline-panel">
+          <h4>SQLite Persistence</h4>
+          <p>Cascade deletions, session/message mapping via Drizzle ORM.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-badge">03</div>
+        <div class="timeline-panel">
+          <h4>Session Managers</h4>
+          <p>Forking, listing, and resuming context chains instantly.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-badge">04</div>
+        <div class="timeline-panel">
+          <h4>Provider Abstraction</h4>
+          <p>Universal model mapping, dynamic local Ollama resolution.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-badge">05</div>
+        <div class="timeline-panel">
+          <h4>Dynamic Prompts</h4>
+          <p>Automated repository filesystem tree analysis and guidelines insertion.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-badge">06</div>
+        <div class="timeline-panel">
+          <h4>Permission Guards</h4>
+          <p>Interactive confirmation gates for editing or terminal executions.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-badge">07</div>
+        <div class="timeline-panel">
+          <h4>Core Toolset</h4>
+          <p>Implements file_read, file_write, grep, glob, and bash command run.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-badge">08</div>
+        <div class="timeline-panel">
+          <h4>Dual-Agent Loops</h4>
+          <p>Build vs Plan agent loops executing code alterations with precision.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-badge">09</div>
+        <div class="timeline-panel">
+          <h4>LSP Client Integration</h4>
+          <p>Type definition query and verification from Language Servers.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-badge">10</div>
+        <div class="timeline-panel">
+          <h4>Rust OS Sandboxing</h4>
+          <p>Rust-based secure subprocess container running system tasks.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-badge">11</div>
+        <div class="timeline-panel">
+          <h4>Cyber TUI Interface</h4>
+          <p>Cyberpunk terminal styling, status bars, spinners, and configurations.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-badge">12</div>
+        <div class="timeline-panel">
+          <h4>CI/CD & Integration</h4>
+          <p>Universal fetch adapters, GitHub Actions tests pipeline, and validation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Installation Section -->
+  <section id="install" class="install-section">
+    <div class="section-header">
+      <h2 class="section-title">Get Started Local</h2>
+      <p class="section-subtitle">Install, configure, and launch the terminal UI in seconds.</p>
+    </div>
+
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-title">Terminal</span>
+        <button class="copy-btn" onclick="copyInstallCmd()">Copy</button>
+      </div>
+      <pre><code># Clone and enter the repository
+git clone https://github.com/anishkashyap134567-ui/Quandcode.git
+cd Quandcode
+
+# Install workspaces and runtime dependencies
+bun install
+
+# Run the interactive TUI
+bun run quandcode</code></pre>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-bottom">
+      <p>&copy; 2026 QuandCode Contributors. Released under the MIT License.</p>
+      <div class="footer-links">
+        <a href="https://github.com/anishkashyap134567-ui/Quandcode" target="_blank">Github Repository</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- App Script -->
+  <script src="app.js"></script>
+</body>
+</html>
