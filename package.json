@@ -1,0 +1,8 @@
+{
+  "name": "@quandcode/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun x servor ./ 3000 --reload"
+  }
+}

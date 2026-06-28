@@ -1,0 +1,697 @@
+/* CSS Reset & Variables */
+:root {
+  --bg-deep: #0c0c0c; /* Exact TUI Background */
+  --bg-card: #121212; /* Solid TUI surface */
+  --border-glow: rgba(255, 255, 255, 0.1);
+  --border-muted: rgba(255, 255, 255, 0.08);
+  
+  /* Cyber Colors - Monochromatic Black and White Theme */
+  --cyan-neon: #FFFFFF;
+  --magenta-neon: #FFFFFF;
+  --yellow-neon: #CCCCCC;
+  --green-neon: #FFFFFF;
+  --red-neon: #FFFFFF;
+  --white: #FFFFFF;
+  --gray-dim: #888888;
+  --gray-bright: #FFFFFF;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Fira Code', 'Courier New', monospace; /* Authentic TUI Monospace Font */
+  background-color: var(--bg-deep);
+  color: var(--white);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Disabled overlays for full terminal authenticity */
+.cyber-grid {
+  display: none;
+}
+
+.cyber-radial {
+  display: none;
+}
+
+/* Header & Navigation */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: rgba(7, 10, 19, 0.8);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  color: var(--white);
+}
+
+.logo-bolt {
+  color: var(--cyan-neon);
+  margin-right: 0.5rem;
+  text-shadow: 0 0 10px var(--cyan-neon);
+  animation: glow-pulse 2s infinite ease-in-out;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--gray-bright);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.nav-links a:hover {
+  color: var(--cyan-neon);
+  text-shadow: 0 0 8px var(--cyan-neon);
+}
+
+/* Hero Section */
+.hero {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 4rem auto;
+  padding: 0 2rem;
+  gap: 3rem;
+  min-height: 70vh;
+}
+
+.hero-content {
+  flex: 1;
+  max-width: 550px;
+}
+
+.version-badge {
+  display: inline-block;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  color: var(--cyan-neon);
+  border: 1px solid var(--cyan-neon);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background-color: rgba(6, 182, 212, 0.08);
+  margin-bottom: 1.5rem;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.15);
+}
+
+.hero-title {
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 1.5rem;
+}
+
+.text-glow {
+  background: linear-gradient(135deg, var(--cyan-neon), var(--magenta-neon));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.25));
+}
+
+.hero-desc {
+  font-size: 1.1rem;
+  color: var(--gray-bright);
+  margin-bottom: 2.5rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Buttons */
+.btn-primary, .btn-secondary {
+  padding: 0.75rem 1.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 4px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: var(--cyan-neon);
+  color: var(--bg-deep);
+  border: 1px solid var(--cyan-neon);
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+}
+
+.btn-primary:hover {
+  background-color: #0891b2;
+  border-color: #0891b2;
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.6);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--white);
+  border: 1px solid var(--border-muted);
+}
+
+.btn-secondary:hover {
+  border-color: var(--cyan-neon);
+  background-color: rgba(6, 182, 212, 0.05);
+  box-shadow: 0 0 12px var(--border-glow);
+  transform: translateY(-2px);
+}
+
+/* Terminal TUI Simulator Frame */
+.terminal-container {
+  flex: 1.2;
+  width: 100%;
+  max-width: 600px;
+  background-color: #0c0c0c; /* Matches exact terminal background from screenshot */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8), 0 0 25px rgba(6, 182, 212, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* scanline overlay */
+.terminal-container::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+  z-index: 10;
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  background-color: #1e1e1e; /* Tab bar background */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  height: 38px;
+  user-select: none;
+}
+
+/* Tabs Bar */
+.terminal-tabs {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  gap: 0.25rem;
+}
+
+.terminal-tab {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  color: #a0a0a0;
+  padding: 0 0.8rem;
+  height: 32px;
+  font-size: 0.75rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.terminal-tab.active {
+  background-color: #0c0c0c; /* Merges with terminal body background */
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: none;
+}
+
+.tab-close {
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+  color: #606060;
+  line-height: 1;
+}
+
+.tab-close:hover {
+  color: #ffffff;
+}
+
+.terminal-tab-add, .terminal-tab-dropdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #808080;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+
+.terminal-tab-add:hover, .terminal-tab-dropdown:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+/* Windows Actions */
+.terminal-window-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.win-btn {
+  color: #808080;
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.win-btn:hover {
+  color: #ffffff;
+}
+
+.terminal-body {
+  padding: 1.2rem;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.85rem;
+  height: 380px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  scroll-behavior: smooth;
+  position: relative;
+}
+
+/* Custom Scrollbar for Terminal */
+.terminal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.terminal-body::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+}
+.terminal-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.terminal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.terminal-history {
+  flex-grow: 1;
+}
+
+.command-invocation {
+  margin-bottom: 1rem;
+}
+
+.banner {
+  line-height: 1.15;
+  margin-bottom: 1.2rem;
+  white-space: pre;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: var(--cyan-neon);
+}
+
+.tui-init-info {
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+/* Input Row styling */
+.terminal-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  padding-top: 0.5rem;
+}
+
+/* Real TUI Mode Label formatting */
+.ansi-mode-label {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.75rem;
+}
+
+.ansi-mode-label .arrow {
+  margin-right: 4px;
+}
+
+.ansi-mode-label .badge-build {
+  background-color: #E0E0E0;
+  color: #0c0c0c;
+  padding: 0px 4px;
+  font-weight: bold;
+}
+
+.ansi-mode-label .badge-plan {
+  background-color: #333333;
+  color: #ffffff;
+  padding: 0px 4px;
+  font-weight: bold;
+}
+
+.input-wrapper {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+#terminal-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--white);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  width: 100%;
+  caret-color: var(--cyan-neon);
+}
+
+/* ANSI Colors Emulator Classrooms - Monochrome Edition */
+.ansi-cyan { color: #ffffff; }
+.ansi-cyan-bright { color: #ffffff; font-weight: bold; }
+.ansi-yellow { color: #cccccc; }
+.ansi-yellow-bright { color: #ffffff; font-weight: bold; }
+.ansi-green-bright { color: #ffffff; font-weight: bold; }
+.ansi-magenta { color: #888888; }
+.ansi-white { color: #ffffff; }
+.ansi-gray { color: #888888; }
+.ansi-red-bright { color: #ffffff; font-weight: bold; }
+
+/* Prompt response styling */
+.terminal-log-line {
+  margin-bottom: 0.35rem;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.terminal-user-entry {
+  margin: 0.5rem 0;
+  font-weight: bold;
+}
+
+/* Features Section */
+.features-section {
+  max-width: 1200px;
+  margin: 6rem auto;
+  padding: 0 2rem;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.section-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(to right, var(--white), var(--gray-bright));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--gray-dim);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.feature-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-muted);
+  padding: 2rem;
+  border-radius: 4px; /* Sharp console corners */
+  transition: border-color 0.2s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card:hover {
+  border-color: var(--cyan-neon);
+  transform: translateY(-2px);
+}
+
+.card-icon {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.card-desc {
+  font-size: 0.95rem;
+  color: var(--gray-bright);
+}
+
+/* Architecture Timeline */
+.arch-section {
+  max-width: 1200px;
+  margin: 6rem auto;
+  padding: 0 2rem;
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.timeline-item {
+  background-color: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 1.5rem;
+  transition: border-color 0.2s;
+  position: relative;
+}
+
+.timeline-item:hover {
+  border-color: var(--cyan-neon);
+}
+
+.timeline-badge {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: var(--magenta-neon);
+  background-color: rgba(217, 70, 239, 0.1);
+  border: 1px solid rgba(217, 70, 239, 0.2);
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+
+.timeline-panel h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.timeline-panel p {
+  font-size: 0.85rem;
+  color: var(--gray-dim);
+}
+
+/* Installation Section */
+.install-section {
+  max-width: 800px;
+  margin: 6rem auto;
+  padding: 0 2rem;
+}
+
+.code-container {
+  background-color: #0c0c0c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.2rem;
+  background-color: #1e1e1e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.code-title {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  color: var(--gray-bright);
+}
+
+.copy-btn {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--gray-bright);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.copy-btn:hover {
+  background-color: rgba(6, 182, 212, 0.1);
+  border-color: var(--cyan-neon);
+  color: var(--cyan-neon);
+}
+
+.code-container pre {
+  padding: 1.5rem;
+  overflow-x: auto;
+}
+
+.code-container code {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: var(--gray-bright);
+  line-height: 1.5;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 2.5rem 2rem;
+  background-color: #04060b;
+}
+
+.footer-bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-bottom p {
+  font-size: 0.85rem;
+  color: var(--gray-dim);
+}
+
+.footer-links a {
+  font-size: 0.85rem;
+  color: var(--gray-dim);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover {
+  color: var(--cyan-neon);
+}
+
+/* Keyframe Animations */
+@keyframes glow-pulse {
+  0%, 100% {
+    text-shadow: 0 0 10px var(--cyan-neon);
+    opacity: 1;
+  }
+  50% {
+    text-shadow: 0 0 18px var(--cyan-neon), 0 0 25px var(--cyan-neon);
+    opacity: 0.85;
+  }
+}
+
+/* Responsive Media Queries */
+@media (max-width: 900px) {
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    margin: 2rem auto;
+    gap: 2.5rem;
+  }
+  
+  .hero-content {
+    max-width: 100%;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+  
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .terminal-container {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 500px) {
+  .navbar {
+    padding: 1rem;
+  }
+  
+  .nav-links {
+    display: none; /* simple responsive approach */
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .hero-title {
+    font-size: 2.1rem;
+  }
+}
