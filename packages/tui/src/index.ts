@@ -6,7 +6,7 @@
 // The interactive terminal interface for QuandCode.
 // Wires together: CyberRenderer + InputHandler + Agent
 
-import { Agent, getGlobalConfigPath } from "@quandcode/core";
+import { Agent, getGlobalConfigPath, WorktreeManager } from "@quandcode/core";
 import type { AgentResult } from "@quandcode/core";
 import { CyberRenderer } from "./components/renderer.js";
 import { InputHandler } from "./components/input.js";
@@ -339,6 +339,78 @@ export class QuandCodeTUI {
       case "new": {
         this.sessionId = null;
         console.log(`\n${CYBER.success("✔")} Started a new session. Next prompt will create a fresh context.\n`);
+        break;
+      }
+
+      case "parallel": {
+        const parts = input.trim().split(" ");
+        parts.shift(); // Remove the command "/parallel"
+        const prompt = parts.join(" ").trim();
+        if (!prompt) {
+          console.log(`\n${CYBER.error("✖ Please specify a task description, e.g., /parallel 'Fix index.ts typos'")}\n`);
+          break;
+        }
+
+        try {
+          console.log(`\n${CYBER.success("⚙")} Starting parallel subagent task inside a new Git worktree...`);
+          const job = await WorktreeManager.create(prompt, this.config.model, this.config.provider);
+          console.log(`\n  ${CYBER.success("✔")} Subagent started!`);
+          console.log(`  ${CYBER.textDim("Task ID:")} ${CYBER.neonCyan(job.id)}`);
+          console.log(`  ${CYBER.textDim("Log File:")} ${CYBER.textDim(job.logFile)}`);
+          console.log(`  To check progress, view the logs or type: ${CYBER.neonCyan("/worktrees")}\n`);
+        } catch (err) {
+          console.log(`\n${CYBER.error("✖ Failed to spawn parallel worktree:")} ${(err as Error).message}\n`);
+        }
+        break;
+      }
+
+      case "worktrees": {
+        const jobs = WorktreeManager.list();
+        console.log();
+        console.log(CYBER.neonCyan("┌── Active Parallel Worktree Subagents ─────────────────"));
+        if (jobs.length === 0) {
+          console.log(`│  ${CYBER.textDim("No active parallel subagents found.")}`);
+        } else {
+          for (const job of jobs) {
+            const statusColor = job.status === "running" ? CYBER.neonYellow : job.status === "completed" ? CYBER.neonGreen : CYBER.neonRed;
+            console.log(`│  ${CYBER.neonCyan(job.id)} : ${CYBER.textBright(job.task)}`);
+            console.log(`│    ${CYBER.textDim("Status:")} ${statusColor(job.status)} | ${CYBER.textDim("Branch:")} ${job.branch}`);
+            console.log(`│    ${CYBER.textDim("Path:")}   ${job.path}`);
+            console.log(`│    ${CYBER.textDim("Logs:")}   ${job.logFile}`);
+          }
+          console.log(`│`);
+          console.log(`│  To clean up a finished job: ${CYBER.neonCyan("/wcleanup <id>")}`);
+        }
+        console.log(CYBER.neonCyan("└───────────────────────────────────────────────────────"));
+        console.log();
+        break;
+      }
+
+      case "wcleanup": {
+        const parts = input.trim().split(" ");
+        const targetId = parts[1];
+        if (!targetId) {
+          console.log(`\n${CYBER.error("✖ Please specify a worktree job ID to clean up.")}\n`);
+          break;
+        }
+
+        try {
+          const job = WorktreeManager.get(targetId);
+          if (!job) {
+            console.log(`\n${CYBER.error(`✖ Worktree job "${targetId}" not found.`)}\n`);
+            break;
+          }
+
+          if (job.status === "running") {
+            console.log(`\n${CYBER.error("✖ Cannot clean up a running subagent job.")}\n`);
+            break;
+          }
+
+          WorktreeManager.cleanup(targetId);
+          console.log(`\n${CYBER.success("✔")} Successfully removed worktree and branch for job: ${CYBER.neonCyan(targetId)}\n`);
+        } catch (err) {
+          console.log(`\n${CYBER.error("✖ Failed to clean up worktree:")} ${(err as Error).message}\n`);
+        }
         break;
       }
     }

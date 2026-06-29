@@ -21,3 +21,7 @@ export type {
   ToolDescription,
 } from "./system.js";
 
+// Parallel Worktree Subagents
+export { WorktreeManager } from "./worktree.js";
+export type { WorktreeJob } from "./worktree.js";
+

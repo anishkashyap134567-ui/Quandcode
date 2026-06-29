@@ -30,6 +30,9 @@ const COMMANDS: Record<string, { description: string; action: string }> = {
   "/help":    { description: "Show help", action: "help" },
   "/compact": { description: "Toggle compact output", action: "compact" },
   "/config":  { description: "Open interactive configuration wizard", action: "config" },
+  "/parallel":{ description: "Run a task in a parallel Git worktree (e.g., /parallel 'fix bug')", action: "parallel" },
+  "/worktrees":{ description: "List active parallel worktree subagents", action: "worktrees" },
+  "/wcleanup":{ description: "Cleanup/delete a completed worktree (e.g., /wcleanup <id>)", action: "wcleanup" },
 };
 
 // ── Input Handler ─────────────────────────────────────────
@@ -112,6 +115,9 @@ export class InputHandler {
       case "new":
       case "compact":
       case "config":
+      case "parallel":
+      case "worktrees":
+      case "wcleanup":
         return cmdDef.action;
 
       default:

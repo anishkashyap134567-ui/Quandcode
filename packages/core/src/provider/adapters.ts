@@ -133,24 +133,46 @@ export class AnthropicProvider implements LLMProvider {
       }
     }
 
-    // Map tools to Anthropic format
-    const tools = options.tools?.map((t) => ({
+    // Map tools to Anthropic format with Prompt Caching (ephemeral) enabled on the last tool
+    const tools = options.tools?.map((t, idx, arr) => ({
       name: t.name,
       description: t.description,
       input_schema: t.parameters,
+      ...(idx === arr.length - 1 ? { cache_control: { type: "ephemeral" } } : {})
     }));
+
+    // Cache control for system prompt if it exists
+    const systemPromptBlocks = system ? [
+      {
+        type: "text",
+        text: system,
+        cache_control: { type: "ephemeral" }
+      }
+    ] : undefined;
+
+    // Cache control for the last user message to establish a cache checkpoint for history
+    if (anthropicMessages.length > 0) {
+      const lastMsg = anthropicMessages[anthropicMessages.length - 1];
+      if (lastMsg && Array.isArray(lastMsg.content) && lastMsg.content.length > 0) {
+        const lastBlock = lastMsg.content[lastMsg.content.length - 1];
+        if (typeof lastBlock === "object") {
+          lastBlock.cache_control = { type: "ephemeral" };
+        }
+      }
+    }
 
     const url = "https://api.anthropic.com/v1/messages";
     const headers = {
       "x-api-key": apiKey,
       "anthropic-version": "2023-06-01",
       "content-type": "application/json",
+      "anthropic-beta": "prompt-caching-2024-07-31",
     };
 
     const body = {
       model: options.model,
       max_tokens: options.maxTokens || 4000,
-      system: system || undefined,
+      system: systemPromptBlocks || undefined,
       messages: anthropicMessages,
       tools: tools && tools.length > 0 ? tools : undefined,
     };

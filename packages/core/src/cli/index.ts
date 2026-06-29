@@ -97,6 +97,17 @@ async function main(): Promise<void> {
             describe: 'Use Plan agent for architecture reasoning',
             default: false,
           })
+          .option('yes', {
+            alias: 'y',
+            type: 'boolean',
+            describe: 'Auto-approve all actions/permissions without prompting',
+            default: false,
+          })
+          .option('auto-approve', {
+            type: 'boolean',
+            describe: 'Auto-approve all actions/permissions without prompting',
+            default: false,
+          })
           .example('$0 run -p "Fix the login bug"', 'Start with a prompt')
           .example('$0 run Fix the login bug', 'Positional prompt')
           .example('$0 run -p "Add tests" --model gpt-4o', 'Specify model');
@@ -157,7 +168,7 @@ async function main(): Promise<void> {
           model: finalModel,
           provider,
           mode,
-          autoApprove: false,
+          autoApprove: !!(argv.yes || argv['auto-approve']),
           prompt: prompt || undefined,
         });
 
