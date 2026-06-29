@@ -24,6 +24,8 @@ interface TUIConfig {
   mode: "build" | "plan";
   autoApprove: boolean;
   prompt?: string; // If set, run once and exit (non-interactive)
+  resume?: string; // Explicit session ID to resume
+  newSession?: boolean; // Force start a new session
 }
 
 // ── Main App ──────────────────────────────────────────────
@@ -96,24 +98,33 @@ export class QuandCodeTUI {
     // Show banner
     this.renderer.showBanner();
 
-    // Check for previous session to resume if it's an interactive TUI session
-    if (!this.config.prompt) {
+    // Check for previous session to resume if we are not explicitly starting a new session
+    if (!this.config.newSession) {
+      const targetSessionId = this.config.resume;
       try {
         const { SessionManager } = await import("@quandcode/core");
         const sessionManager = new SessionManager(process.cwd());
-        const lastSession = await sessionManager.getLastSession();
-        if (lastSession) {
-          this.sessionId = lastSession.id;
-          this.config.mode = lastSession.activeAgent as any;
-          this.config.model = lastSession.model;
-          this.config.provider = lastSession.provider;
+        
+        let sessionToResume = null;
+        if (targetSessionId) {
+          sessionToResume = await sessionManager.resumeSession(targetSessionId);
+        } else {
+          sessionToResume = await sessionManager.getLastSession();
+        }
+
+        if (sessionToResume) {
+          this.sessionId = sessionToResume.id;
+          this.config.mode = sessionToResume.activeAgent as any;
+          this.config.model = sessionToResume.model;
+          this.config.provider = sessionToResume.provider;
           this.statusBar.update({
             mode: this.config.mode,
             model: this.config.model,
             provider: this.config.provider,
           });
+          const resumeType = targetSessionId ? "Resumed session:" : "Auto-resumed last active session:";
           console.log(
-            `  ${CYBER.success("✔")} ${CYBER.textBright("Auto-resumed last active session:")} ${CYBER.neonCyan(lastSession.id.slice(0, 8))}… (${CYBER.textDim(lastSession.title)})`
+            `  ${CYBER.success("✔")} ${CYBER.textBright(resumeType)} ${CYBER.neonCyan(sessionToResume.id.slice(0, 8))}… (${CYBER.textDim(sessionToResume.title)})`
           );
           console.log();
         }

@@ -92,6 +92,12 @@ async function main(): Promise<void> {
             type: 'string',
             describe: 'Resume a previous session by ID',
           })
+          .option('new', {
+            alias: 'n',
+            type: 'boolean',
+            describe: 'Start a fresh coding session instead of auto-resuming the last active session',
+            default: false,
+          })
           .option('plan', {
             type: 'boolean',
             describe: 'Use Plan agent for architecture reasoning',
@@ -170,6 +176,8 @@ async function main(): Promise<void> {
           mode,
           autoApprove: !!(argv.yes || argv['auto-approve']),
           prompt: prompt || undefined,
+          resume: argv.resume as string || undefined,
+          newSession: !!argv.new || false,
         });
 
         await tui.start();
